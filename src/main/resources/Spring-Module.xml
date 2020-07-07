@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<context:property-placeholder
+		location="classpath:database.properties" />
+	<tx:annotation-driven />
+	<context:annotation-config />
+
+	<context:component-scan
+		base-package="com.ca.migration.dao" />
+
+	<context:component-scan
+		base-package="com.ca.migration.service" />
+
+
+
+	<!-- Database connection settings <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property> 
+		<property name="connection.url">jdbc:oracle:thin:@upadh01-I5883.ca.com:1521:orcl12c</property> 
+		<property name="connection.username">aoprk</property> <property name="connection.password">dost1234</property> -->
+
+
+	<bean id="dataSourceOracle"
+		class="org.apache.commons.dbcp.BasicDataSource" lazy-init="true">
+		<property name="driverClassName"
+			value="oracle.jdbc.driver.OracleDriver" />
+		<property name="url"
+			value="jdbc:oracle:thin:@${oracle.hostname}:${oracle.port}:${oracle.db}" />
+		<property name="username" value="${oracle.username}" />
+		<property name="password" value="${oracle.password}" />
+		
+	</bean>
+
+
+
+	<bean id="sessionFactoryOracle"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceOracle"></property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+		<property name="packagesToScan" value="com.ca.migration.dto" />
+
+	</bean>
+
+
+
+
+	<bean id="dataSourcePostgres"
+		class="com.p6spy.engine.spy.P6DataSource">
+		<constructor-arg>
+			<ref local="dataSourcePostgresChild" />
+		</constructor-arg>
+	</bean>
+
+
+	<bean id="dataSourcePostgresChild"
+		class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName"
+			value="org.postgresql.Driver" />
+		<property name="url"
+			value="jdbc:postgresql://${postgres.hostname}:${postgres.port}/${postgres.db}" />
+		<property name="username" value="${postgres.username}" />
+		<property name="password" value="${postgres.password}" />
+	</bean>
+
+
+	<!-- <bean id="dataSourcePostgres" class="org.apache.commons.dbcp.BasicDataSource" 
+		destroy-method="close"> <property name="driverClassName" value="org.postgresql.Driver" 
+		/> <property name="url" value="jdbc:postgresql://telra04-I6048:5432/ao_platform" 
+		/> <property name="username" value="aopuser" /> <property name="password" 
+		value="dost@123" /> </bean> -->
+
+
+	<bean id="sessionFactoryPostgres"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSourcePostgres"></property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">validate</prop>
+			</props>
+		</property>
+		<property name="packagesToScan" value="com.ca.migration.dto" />
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager"
+		p:sessionFactory-ref="sessionFactoryPostgres">
+	</bean>
+
+
+
+
+
+</beans>
