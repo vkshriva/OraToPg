@@ -26,11 +26,6 @@
 
 
 
-	<!-- Database connection settings <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property> 
-		<property name="connection.url">jdbc:oracle:thin:@upadh01-I5883.ca.com:1521:orcl12c</property> 
-		<property name="connection.username">aoprk</property> <property name="connection.password">dost1234</property> -->
-
-
 	<bean id="dataSourceOracle"
 		class="org.apache.commons.dbcp.BasicDataSource" lazy-init="true">
 		<property name="driverClassName"
@@ -80,11 +75,7 @@
 	</bean>
 
 
-	<!-- <bean id="dataSourcePostgres" class="org.apache.commons.dbcp.BasicDataSource" 
-		destroy-method="close"> <property name="driverClassName" value="org.postgresql.Driver" 
-		/> <property name="url" value="jdbc:postgresql://telra04-I6048:5432/ao_platform" 
-		/> <property name="username" value="aopuser" /> <property name="password" 
-		value="dost@123" /> </bean> -->
+	
 
 
 	<bean id="sessionFactoryPostgres"
